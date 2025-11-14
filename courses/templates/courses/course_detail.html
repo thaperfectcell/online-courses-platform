@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ course.title }}</title>
+</head>
+<body>
+<h1>{{ course.title }}</h1>
+<p>{{ course.description }}</p>
+
+<h2>Уроки</h2>
+<ol>
+    {% for lesson in lessons %}
+        <li>{{ lesson.title }}</li>
+    {% empty %}
+        <li>У этого курса пока нет уроков</li>
+    {% endfor %}
+</ol>
+
+<p><a href="{% url 'courses:course_list' %}">← Назад к списку курсов</a></p>
+</body>
+</html>
