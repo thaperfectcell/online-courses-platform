@@ -1,24 +1,25 @@
-# 1. Базовый образ с Python
 FROM python:3.12-slim
 
-# 2. Настройки окружения внутри контейнера
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# 3. Рабочая директория внутри контейнера
 WORKDIR /app
 
-# 4. Копируем только зависимости сначала
+# Ставим зависимости
 COPY requirements.txt /app/
-
-# 5. Устанавливаем зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 6. Копируем весь проект в контейнер
+# Копируем проект
 COPY . /app/
 
-# 7. Открываем порт 8000 (на уровне документации)
+# Копируем entrypoint и делаем его исполняемым
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 8000
 
-# 8. Команда запуска: gunicorn, не runserver
+# Указываем entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Команда по умолчанию — запуск Gunicorn
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
