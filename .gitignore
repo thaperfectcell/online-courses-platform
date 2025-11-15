@@ -8,3 +8,5 @@ media/
 staticfiles/
 static/
 media/
+dockerhub_token.txt
+.secrets/
