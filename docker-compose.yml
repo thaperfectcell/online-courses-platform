@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: online-courses-web
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+    ports:
+      - "8000:8000"
+    environment:
+      # В проде эти значения надо выносить в .env, но для учебных целей можно так.
+      DJANGO_SECRET_KEY: "dev-secret-key-change-me"
+      DJANGO_DEBUG: "1"
+      POSTGRES_DB: "online_courses"
+      POSTGRES_USER: "online_user"
+      POSTGRES_PASSWORD: "online_password"
+      POSTGRES_HOST: "db"
+      POSTGRES_PORT: "5432"
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    build: .
+    container_name: online-courses-worker
+    command: celery -A config worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      DJANGO_SECRET_KEY: "dev-secret-key-change-me"
+      DJANGO_DEBUG: "1"
+      POSTGRES_DB: "online_courses"
+      POSTGRES_USER: "online_user"
+      POSTGRES_PASSWORD: "online_password"
+      POSTGRES_HOST: "db"
+      POSTGRES_PORT: "5432"
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://redis:6379/1"
+
+  db:
+    image: postgres:16-alpine
+    container_name: online-courses-db
+    environment:
+      POSTGRES_DB: "online_courses"
+      POSTGRES_USER: "online_user"
+      POSTGRES_PASSWORD: "online_password"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: online-courses-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+  static_volume:

@@ -1,5 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Course
+from django.http import HttpResponse
+from .tasks import test_celery_task
+
 
 
 def course_list(request):
@@ -14,3 +17,8 @@ def course_detail(request, pk):
         'course': course,
         'lessons': lessons,
     })
+
+def trigger_test_task(request):
+    # Отправляем задачу в Celery
+    test_celery_task.delay()
+    return HttpResponse("Задача Celery отправлена в очередь")
