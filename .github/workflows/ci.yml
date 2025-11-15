@@ -7,8 +7,11 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
+  build-test-and-push:
     runs-on: ubuntu-latest
+
+    env:
+      DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/online-courses-web
 
     steps:
     - name: Checkout repository
@@ -30,6 +33,13 @@ jobs:
       run: |
         python manage.py test --verbosity=2
 
-    - name: Build Docker image
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push Docker image
       run: |
-        docker build -t online-courses-web:ci .
+        docker build -t $DOCKER_IMAGE:latest .
+        docker push $DOCKER_IMAGE:latest
