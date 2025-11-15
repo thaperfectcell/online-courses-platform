@@ -5,3 +5,6 @@ __pycache__/
 /static/
 media/
 .env
+staticfiles/
+static/
+media/
