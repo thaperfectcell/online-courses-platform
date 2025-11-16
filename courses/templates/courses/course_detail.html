@@ -6,6 +6,26 @@
 <h1>{{ course.title }}</h1>
 <p class="text-muted">{{ course.description }}</p>
 
+<div class="mb-3">
+  {% if user.is_authenticated %}
+    {% if is_enrolled %}
+      <p class="text-success">Вы уже записаны на этот курс.</p>
+    {% else %}
+      <form method="post" action="{% url 'courses:enroll' course.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">
+          Записаться на курс
+        </button>
+      </form>
+    {% endif %}
+  {% else %}
+    <p>
+      Чтобы записаться на курс, сначала
+      <a href="{% url 'login' %}?next={{ request.path }}">войдите в аккаунт</a>.
+    </p>
+  {% endif %}
+</div>
+
 <h3 class="mt-4">Уроки</h3>
 <ul class="list-group">
   {% for lesson in course.lessons.all %}
