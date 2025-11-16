@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
+
 
 
 class Course(models.Model):
@@ -47,7 +49,9 @@ class Enrollment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата записи")
 
     class Meta:
-        unique_together = ('user', 'course')
+        constraints = [
+            models.UniqueConstraint(fields=["user", "course"], name="unique_user_course")
+        ]
 
     def __str__(self):
         return f"{self.user.username} → {self.course.title}"
