@@ -1,22 +1,22 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ course.title }}</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
 <h1>{{ course.title }}</h1>
-<p>{{ course.description }}</p>
+<p class="text-muted">{{ course.description }}</p>
 
-<h2>Уроки</h2>
-<ol>
-    {% for lesson in lessons %}
-        <li>{{ lesson.title }}</li>
-    {% empty %}
-        <li>У этого курса пока нет уроков</li>
-    {% endfor %}
-</ol>
-
-<p><a href="{% url 'courses:course_list' %}">← Назад к списку курсов</a></p>
-</body>
-</html>
+<h3 class="mt-4">Уроки</h3>
+<ul class="list-group">
+  {% for lesson in course.lessons.all %}
+    <li class="list-group-item">
+      <strong>{{ lesson.title }}</strong>
+      {% if lesson.content %}
+        <p class="mb-0">{{ lesson.content }}</p>
+      {% endif %}
+    </li>
+  {% empty %}
+    <li class="list-group-item">Уроков пока нет.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

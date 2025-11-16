@@ -159,3 +159,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+LOGIN_REDIRECT_URL = "/courses/"
+LOGOUT_REDIRECT_URL = "/courses/"
