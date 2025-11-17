@@ -163,13 +163,23 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 LOGIN_REDIRECT_URL = "/courses/"
 LOGOUT_REDIRECT_URL = "/courses/"
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        # В Docker приложение обращается к контейнеру redis по имени "redis"
-        "LOCATION": os.environ.get("REDIS_CACHE_URL", "redis://redis:6379/1"),
+USE_REDIS_CACHE = os.environ.get("USE_REDIS_CACHE") == "1"
+
+if USE_REDIS_CACHE:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": os.environ.get("REDIS_CACHE_URL", "redis://redis:6379/1"),
+        }
     }
-}
+else:
+    # Используем простой in-memory кэш (для локальных тестов и CI)
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "local-in-memory-cache",
+        }
+    }
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "no-reply@online-courses.local"
