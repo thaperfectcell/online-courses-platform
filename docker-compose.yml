@@ -2,7 +2,8 @@ version: "3.9"
 
 services:
   web:
-    build: .
+    image: ${DOCKER_IMAGE:-online-courses-web} # <-- использовать образ из CI/CD или локальный
+    # build: . для локальной разработки можно раскомментить
     container_name: online-courses-web
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
     volumes:
