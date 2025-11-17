@@ -61,7 +61,12 @@
                 <span class="nav-link disabled">Привет, {{ user.username }}!</span>
               </li>
               <li class="nav-item">
-                <a class="btn btn-outline-secondary btn-sm" href="{% url 'logout' %}">Выйти</a>
+                <form method="post" action="{% url 'logout' %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-outline-secondary btn-sm">
+                    Выйти
+                  </button>
+                </form>
               </li>
             {% else %}
               <li class="nav-item">

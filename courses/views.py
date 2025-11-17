@@ -23,14 +23,13 @@ def course_list(request):
     
     paginator = Paginator(courses, 6)  # Показывать по 10 курсов на странице
 
-    try:
-        page_obj = Paginator.page(page_number)
-    except PageNotAnInteger:
-        page_obj = Paginator.page(1)
-    except EmptyPage:
-        page_obj = Paginator.page(Paginator.num_pages)
+    # Берём объект страницы. get_page сам:
+    # - превращает строку в число;
+    # - отдаёт 1-ю страницу при кривом значении;
+    # - отдаёт последнюю, если номер слишком большой.
+    page_obj = paginator.get_page(page_number)
 
-        context = {
+    context = {
         "page_obj": page_obj,                     # стандартный объект страницы
         "courses": page_obj.object_list,          # сами курсы на этой странице
         "is_paginated": page_obj.has_other_pages(),
