@@ -1,25 +1,96 @@
 {% extends "base.html" %}
 
-{% block title %}Список курсов{% endblock %}
+{% block title %}Каталог курсов{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Список курсов</h1>
 
-<div class="row">
-  {% for course in courses %}
-    <div class="col-md-4 mb-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">{{ course.title }}</h5>
-          <p class="card-text">{{ course.description|truncatewords:20 }}</p>
-          <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-primary">
-            Подробнее
-          </a>
+<div class="hero">
+  <div class="row align-items-center">
+    <div class="col-md-7">
+      <h1 class="hero-title mb-3">Каталог курсов</h1>
+      <p class="hero-subtitle">
+        Платформа для онлайн-курсов с высокой нагрузкой: Django, PostgreSQL, Redis, Celery и Docker.
+        Выберите курс и запишитесь, чтобы протестировать бизнес-логику и инфраструктуру.
+      </p>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+      <span class="badge bg-primary-subtle text-primary-emphasis fs-6">
+        Курсов в каталоге: {{ paginator.count }}
+      </span>
+    </div>
+  </div>
+</div>
+
+{% if courses %}
+  <div class="row g-4">
+    {% for course in courses %}
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+          <!-- Заглушка под картинку -->
+          <div class="ratio ratio-16x9 bg-light d-flex align-items-center justify-content-center">
+            <span class="text-muted">Изображение курса</span>
+          </div>
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ course.title }}</h5>
+            <p class="card-text text-muted small">
+              {{ course.description|truncatechars:120 }}
+            </p>
+            <div class="mt-auto d-flex justify-content-between align-items-center">
+              <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-sm btn-primary">
+                Подробнее
+              </a>
+              <span class="badge bg-secondary-subtle text-secondary-emphasis">
+                ID: {{ course.id }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  {% empty %}
-    <p>Курсов пока нет.</p>
-  {% endfor %}
-</div>
+    {% endfor %}
+  </div>
+
+  {% if is_paginated %}
+    <nav aria-label="Навигация по страницам" class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Назад</span>
+          </li>
+        {% endif %}
+
+        {% for num in paginator.page_range %}
+          {% if num == page_obj.number %}
+            <li class="page-item active">
+              <span class="page-link">{{ num }}</span>
+            </li>
+          {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Вперёд</span>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+
+{% else %}
+  <div class="alert alert-info">
+    Пока что курсов нет. Зайдите в админ-панель и создайте первый курс.
+  </div>
+{% endif %}
+
 {% endblock %}

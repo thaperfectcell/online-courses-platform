@@ -4,10 +4,14 @@ from .models import Course, Enrollment
 from django.http import HttpResponse
 from .tasks import test_celery_task, send_enrollment_notification
 from django.core.cache import cache
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 
 def course_list(request):
+    # текущая страница для пагинации (если нужна)
+    page_number = request.GET.get('page', 1)
+
     # Пытаемся взять список курсов из кэша
     courses = cache.get("courses_list")
 
@@ -16,6 +20,22 @@ def course_list(request):
         courses = list(Course.objects.all())
         # Кладём в кэш на 60 секунд (можно больше, например 300)
         cache.set("courses_list", courses, 60)
+    
+    paginator = Paginator(courses, 6)  # Показывать по 10 курсов на странице
+
+    try:
+        page_obj = Paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = Paginator.page(1)
+    except EmptyPage:
+        page_obj = Paginator.page(Paginator.num_pages)
+
+        context = {
+        "page_obj": page_obj,                     # стандартный объект страницы
+        "courses": page_obj.object_list,          # сами курсы на этой странице
+        "is_paginated": page_obj.has_other_pages(),
+        "paginator": paginator,
+    }
 
     return render(request, 'courses/course_list.html', {'courses': courses})
 

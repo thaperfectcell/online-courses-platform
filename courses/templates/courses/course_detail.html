@@ -1,42 +1,88 @@
 {% extends "base.html" %}
 
-{% block title %}{{ course.title }}{% endblock %}
+{% block title %}{{ course.title }} — курс{% endblock %}
 
 {% block content %}
-<h1>{{ course.title }}</h1>
-<p class="text-muted">{{ course.description }}</p>
 
-<div class="mb-3">
-  {% if user.is_authenticated %}
-    {% if is_enrolled %}
-      <p class="text-success">Вы уже записаны на этот курс.</p>
-    {% else %}
-      <form method="post" action="{% url 'courses:enroll' course.id %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-success">
-          Записаться на курс
-        </button>
-      </form>
-    {% endif %}
-  {% else %}
-    <p>
-      Чтобы записаться на курс, сначала
-      <a href="{% url 'login' %}?next={{ request.path }}">войдите в аккаунт</a>.
-    </p>
-  {% endif %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h1 class="card-title mb-3">{{ course.title }}</h1>
+        <p class="text-muted">
+          {{ course.description|linebreaks }}
+        </p>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">Программа курса</h5>
+      </div>
+      <div class="card-body">
+        {% if lessons %}
+          <ol class="list-group list-group-numbered">
+            {% for lesson in lessons %}
+              <li class="list-group-item">
+                <h6 class="mb-1">{{ lesson.title }}</h6>
+                {% if lesson.description %}
+                  <p class="mb-0 text-muted small">
+                    {{ lesson.description|truncatechars:160 }}
+                  </p>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ol>
+        {% else %}
+          <p class="text-muted">У этого курса пока нет уроков. Добавьте их через админ-панель.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4 mt-4 mt-lg-0">
+    <div class="card shadow-sm border-0 mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Запись на курс</h5>
+
+        {% if user.is_authenticated %}
+          {% if is_enrolled %}
+            <div class="alert alert-success py-2">
+              Вы уже записаны на этот курс 🎓
+            </div>
+          {% else %}
+            <p class="text-muted small">
+              Нажмите кнопку ниже, чтобы записаться на курс.  
+              В фоне будет отправлено уведомление через Celery.
+            </p>
+            <form method="post" action="{% url 'courses:enroll' course.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success w-100">
+                Записаться на курс
+              </button>
+            </form>
+          {% endif %}
+        {% else %}
+          <p class="text-muted small mb-2">
+            Чтобы записаться на курс, необходимо войти в систему.
+          </p>
+          <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-primary w-100">
+            Войти
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h6 class="card-title mb-2">Техническая информация</h6>
+        <ul class="list-unstyled small text-muted mb-0">
+          <li>ID курса: {{ course.id }}</li>
+          <li>Всего уроков: {{ lessons|length }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
 
-<h3 class="mt-4">Уроки</h3>
-<ul class="list-group">
-  {% for lesson in course.lessons.all %}
-    <li class="list-group-item">
-      <strong>{{ lesson.title }}</strong>
-      {% if lesson.content %}
-        <p class="mb-0">{{ lesson.content }}</p>
-      {% endif %}
-    </li>
-  {% empty %}
-    <li class="list-group-item">Уроков пока нет.</li>
-  {% endfor %}
-</ul>
 {% endblock %}
