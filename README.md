@@ -121,3 +121,12 @@ docker stack services online_courses
 ```bash
 docker stack rm online_courses
 ```
+---
+## Эндпоинты
+|Метод|Путь|Описание|Тело запроса|Ответ|
+|-----|----|--------|------------|-----|
+|`GET`|`/courses/`|Список курсов|-|HTML-страница со списком курсов|
+|`GET`|`/courses/<id>`|Просмотреть конкретный курс и уроки|-|HTML-страница курса|
+|`POST`|`/courses/<id>/enroll/`|Записаться на курс|HTML-форма вида `csrfmiddlewaretoken=...&next=/courses/1/`|Редирект обратно на страницу курса|
+|`GET/POST`|`/accounts/login/`|Вход|-/Форма логина вида `csrfmiddlewaretoken=...&username=...&password=...`|Обновление сессии `Set-Cookie: sessionid=...`. Редирект обратно|
+|`POST`|`accounts/logout/`|Выход|`csrfmiddlewaretoken=...`|Удаление сессии. Редирект на `courses/`|
